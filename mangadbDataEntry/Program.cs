@@ -14,9 +14,9 @@ namespace mangadbDataEntry
 		static void Main(string[] args)
 		{
 			SqlConnection conn = new SqlConnection();
-			conn.ConnectionString = "Data Source=localhost;" +
-			"Initial Catalog=mangadb;" +
-			"Integrated Security=SSPI;";
+			conn.ConnectionString = @"Data Source=localhost;" +
+			"Database=mangadb;" +
+			"Integrated Security=true;";
 			conn.Open();
 
 			using (TextFieldParser parser = new TextFieldParser("mangadb.csv"))

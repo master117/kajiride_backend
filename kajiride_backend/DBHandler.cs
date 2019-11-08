@@ -38,14 +38,12 @@ namespace kajiride_backend
 					if (VerifyHash(password, salt, passwordHash))
 					{
 						int role = (int)reader.GetValue(4);
-						string token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-						TokenHandler.AddToken(token, role);
+						
 
 						User user = new User();
 						user.id = (long)reader.GetValue(0);
 						user.name = (string)reader.GetValue(1);
-						user.role = role;
-						user.token = token;						
+						user.role = role;				
 
 						return user;
 					}
@@ -59,7 +57,7 @@ namespace kajiride_backend
 			return null;
 		}
 
-		public static KeyValuePair<bool, string> RegisterUser(string username, string password)
+		public static KeyValuePair<bool, string> TryRegisterUser(string username, string password)
 		{
 			try
 			{
@@ -152,7 +150,7 @@ namespace kajiride_backend
 
 		public static bool InsertEditManga(Manga manga, string token)
 		{
-			if (!TokenHandler.isAllowed(token, TokenHandler.Roles.admin))
+			if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
 				return false;
 
 			try

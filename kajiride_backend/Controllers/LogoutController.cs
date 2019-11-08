@@ -12,21 +12,15 @@ using System.Web.Http.Cors;
 namespace kajiride_backend.Controllers
 {
 	[EnableCors(origins: "*", headers: "*", methods: "*")]
-	public class LoginController : ApiController
+	public class LogoutController : ApiController
     {
-		public struct loginInfo
-		{
-			public string username;
-			public string password;			
-		}
-
-        // POST: api/Login
-        public User Post([FromBody]loginInfo value)
+        // POST: api/Logout
+        public bool Post([FromBody]string token)
         {
-			Console.WriteLine("new Login Attempt: " + value);
-			User user = SessionHandler.TryLoggingIn(value.username, value.password);
+			Console.WriteLine("new Logout Attempt for Token: " + token);
+			bool loggedOut = SessionHandler.LogOut(token);
 
-			return user;
+			return loggedOut;
         }
     }
 }
