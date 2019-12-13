@@ -22,6 +22,7 @@ namespace kajiride_backend
 			);
 
 			DBHandler.TryRegisterUser("admin", "abcd1234");
+			DBHandler.TryRegisterUser("user", "abcd1234");
 		}
 	}
 }

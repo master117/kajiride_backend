@@ -204,11 +204,11 @@ namespace kajiride_backend
 				"Integrated Security=SSPI;";
 				conn.Open();
 
-					string sql = "INSERT INTO MANGA (" +
-						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE" +
-						") VALUES (" +
-						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @TOTALVOLUMES, @OWNEDVOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @SCORE" +
-						") OUTPUT INSERTED.MANGAID";
+				string sql = "INSERT INTO MANGA (" +
+					"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE" +
+					") output INSERTED.MANGAID VALUES (" +
+					"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @TOTALVOLUMES, @OWNEDVOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @SCORE" +
+					");";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
 					sqlC.Parameters.Add(new SqlParameter("@NAME", manga.name ?? (object)DBNull.Value));

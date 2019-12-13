@@ -1,6 +1,6 @@
 /.vs
 
 /kajiride_backend/bin
-/kajiride_backend/obj/Debug
-/mangadbDataEntry/bin/Debug
-/mangadbDataEntry/obj/Debug
+/kajiride_backend/obj
+/mangadbDataEntry/bin
+/mangadbDataEntry/obj
