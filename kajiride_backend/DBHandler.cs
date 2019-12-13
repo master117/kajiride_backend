@@ -283,6 +283,110 @@ namespace kajiride_backend
 
 		#endregion
 
+		#region Release
+		public static List<Release> GetAllReleases()
+		{
+			List<Release> releaseList = new List<Release>();
+
+			try
+			{
+				SqlConnection conn = new SqlConnection();
+				conn.ConnectionString = "Data Source=localhost;" +
+				"Initial Catalog=mangadb;" +
+				"Integrated Security=SSPI;";
+				conn.Open();
+
+				string sql = "SELECT RELEASEID, MANGAID, VOLUME, ACTIVE, RELEASEDATE FROM RELEASE";
+
+				SqlCommand sqlCommand = new SqlCommand(sql, conn);
+
+				SqlDataReader reader = sqlCommand.ExecuteReader();
+				while (reader.Read())
+				{
+					Release release = new Release(
+						(long)reader.GetValue(0),
+						(long)reader.GetValue(1),
+						(int)reader.GetValue(2),
+						(bool)reader.GetValue(3),
+						(DateTime)reader.GetValue(4)
+					);
+
+					releaseList.Add(release);
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return releaseList;
+		}
+
+		public static Release InsertRelease(Release release)
+		{
+			try
+			{
+				SqlConnection conn = new SqlConnection();
+				conn.ConnectionString = "Data Source=localhost;" +
+				"Initial Catalog=mangadb;" +
+				"Integrated Security=SSPI;";
+				conn.Open();
+
+				string sql = "INSERT INTO RELEASE (" +
+					"MANGAID, VOLUME, ACTIVE, RELEASEDATE" +
+					") output INSERTED.RELEASEID VALUES (" +
+					"@MANGAID, @VOLUME, @ACTIVE, @RELEASEDATE" +
+					");";
+
+				SqlCommand sqlC = new SqlCommand(sql, conn);
+				sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaId));
+				sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
+				sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
+				sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
+
+				SqlDataReader reader = sqlC.ExecuteReader();
+
+				if (reader.Read())
+					release.releaseId = (long)reader.GetValue(0);
+
+				return release;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return null;
+		}
+
+		public static bool DeleteRelease(long releaseId)
+		{
+			try
+			{
+				SqlConnection conn = new SqlConnection();
+				conn.ConnectionString = "Data Source=localhost;" +
+				"Initial Catalog=mangadb;" +
+				"Integrated Security=SSPI;";
+				conn.Open();
+
+				string sql = "DELETE FROM RELEASE WHERE RELEASEID=@RELEASEID";
+
+				SqlCommand sqlC = new SqlCommand(sql, conn);
+				sqlC.Parameters.Add(new SqlParameter("@RELEASEID", releaseId));
+				int affectedRows = sqlC.ExecuteNonQuery();
+
+				return affectedRows > 0;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return false;
+		}
+
+		#endregion
+
 		#region Helper
 		//
 		// Helper
