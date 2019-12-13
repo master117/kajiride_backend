@@ -17,35 +17,37 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
-
-				string sql = "SELECT USERID, USERNAME, PASSWORD, SALT, ROLE FROM USERS WHERE USERNAME=@USERNAME";
-
-				SqlCommand sqlCommand = new SqlCommand(sql, conn);
-				SqlParameter userSqlParameter = new SqlParameter("@USERNAME", username);;
-				sqlCommand.Parameters.Add(userSqlParameter);
-
-				SqlDataReader reader = sqlCommand.ExecuteReader();
-				if (reader.Read())
+				using (SqlConnection conn = new SqlConnection())
 				{
-					byte[] passwordHash = (byte[])reader.GetValue(2);
-					byte[] salt = (byte[])reader.GetValue(3);
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-					if (VerifyHash(password, salt, passwordHash))
+					string sql = "SELECT USERID, USERNAME, PASSWORD, SALT, ROLE FROM USERS WHERE USERNAME=@USERNAME";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+					SqlParameter userSqlParameter = new SqlParameter("@USERNAME", username); ;
+					sqlCommand.Parameters.Add(userSqlParameter);
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					if (reader.Read())
 					{
-						int role = (int)reader.GetValue(4);
-						
+						byte[] passwordHash = (byte[])reader.GetValue(2);
+						byte[] salt = (byte[])reader.GetValue(3);
 
-						User user = new User();
-						user.id = (long)reader.GetValue(0);
-						user.name = (string)reader.GetValue(1);
-						user.role = role;				
+						if (VerifyHash(password, salt, passwordHash))
+						{
+							int role = (int)reader.GetValue(4);
 
-						return user;
+
+							User user = new User();
+							user.id = (long)reader.GetValue(0);
+							user.name = (string)reader.GetValue(1);
+							user.role = role;
+
+							return user;
+						}
 					}
 				}
 			}
@@ -66,32 +68,34 @@ namespace kajiride_backend
 				byte[] passwordHash = HashPassword(password, salt);
 
 				// Create Connection
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-				// Check for existing User
-				string ckeckForUserSQL = "SELECT COUNT(*) FROM USERS WHERE USERNAME = @USERNAME";
-				SqlCommand checkSqlCommand = new SqlCommand(ckeckForUserSQL, conn);
-				checkSqlCommand.Parameters.Add(new SqlParameter("@USERNAME", username));
-				if ((int)checkSqlCommand.ExecuteScalar() != 0)
-					return new KeyValuePair<bool, string>(false, "User already exists.");
+					// Check for existing User
+					string ckeckForUserSQL = "SELECT COUNT(*) FROM USERS WHERE USERNAME = @USERNAME";
+					SqlCommand checkSqlCommand = new SqlCommand(ckeckForUserSQL, conn);
+					checkSqlCommand.Parameters.Add(new SqlParameter("@USERNAME", username));
+					if ((int)checkSqlCommand.ExecuteScalar() != 0)
+						return new KeyValuePair<bool, string>(false, "User already exists.");
 
-				// Create new User
-				string inserUserSQL = "INSERT INTO USERS (USERNAME, PASSWORD, SALT) " +
-					"VALUES (@USERNAME, @PASSWORD, @SALT)";
+					// Create new User
+					string inserUserSQL = "INSERT INTO USERS (USERNAME, PASSWORD, SALT) " +
+						"VALUES (@USERNAME, @PASSWORD, @SALT)";
 
-				SqlCommand insertSqlCommand = new SqlCommand(inserUserSQL, conn);
-				insertSqlCommand.Parameters.Add(new SqlParameter("@USERNAME", username));
-				insertSqlCommand.Parameters.Add(new SqlParameter("@PASSWORD", passwordHash));
-				insertSqlCommand.Parameters.Add(new SqlParameter("@SALT", salt));
+					SqlCommand insertSqlCommand = new SqlCommand(inserUserSQL, conn);
+					insertSqlCommand.Parameters.Add(new SqlParameter("@USERNAME", username));
+					insertSqlCommand.Parameters.Add(new SqlParameter("@PASSWORD", passwordHash));
+					insertSqlCommand.Parameters.Add(new SqlParameter("@SALT", salt));
 
-				if (insertSqlCommand.ExecuteNonQuery() > 0)
-					return new KeyValuePair<bool, string>(true, "User created.");
+					if (insertSqlCommand.ExecuteNonQuery() > 0)
+						return new KeyValuePair<bool, string>(true, "User created.");
+				}
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
 			}
@@ -107,40 +111,42 @@ namespace kajiride_backend
 
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
-
-				string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
-					"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA";
-
-				SqlCommand sqlCommand = new SqlCommand(sql, conn);
-
-				SqlDataReader reader = sqlCommand.ExecuteReader();
-				while (reader.Read())
+				using (SqlConnection conn = new SqlConnection())
 				{
-					Manga manga = new Manga(
-						(long)reader.GetValue(0),
-						reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
-						reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
-						reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
-						reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
-						reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
-						reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
-						reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
-						reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
-						reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
-						reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
-						reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
-						reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
-					);
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-					mangaList.Add(manga);
+					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
+						"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					while (reader.Read())
+					{
+						Manga manga = new Manga(
+							(long)reader.GetValue(0),
+							reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
+							reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
+							reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
+							reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
+							reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
+							reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
+							reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
+							reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
+							reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
+							reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
+							reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
+							reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
+						);
+
+						mangaList.Add(manga);
+					}
 				}
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
 			}
@@ -152,38 +158,40 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
-
-				string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
-					"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA WHERE MANGAID=@MANGAID";
-
-				SqlCommand sqlCommand = new SqlCommand(sql, conn);
-				sqlCommand.Parameters.Add(new SqlParameter("@MANGAID", id));
-
-				SqlDataReader reader = sqlCommand.ExecuteReader();
-				if(reader.Read())
+				using (SqlConnection conn = new SqlConnection())
 				{
-					Manga manga = new Manga(
-						(long)reader.GetValue(0),
-						reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
-						reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
-						reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
-						reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
-						reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
-						reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
-						reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
-						reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
-						reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
-						reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
-						reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
-						reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
-					);
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-					return manga;
+					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
+						"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA WHERE MANGAID=@MANGAID";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+					sqlCommand.Parameters.Add(new SqlParameter("@MANGAID", id));
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					if (reader.Read())
+					{
+						Manga manga = new Manga(
+							(long)reader.GetValue(0),
+							reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
+							reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
+							reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
+							reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
+							reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
+							reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
+							reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
+							reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
+							reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
+							reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
+							reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
+							reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
+						);
+
+						return manga;
+					}
 				}
 			}
 			catch (Exception e)
@@ -198,17 +206,18 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-				string sql = "INSERT INTO MANGA (" +
-					"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE" +
-					") output INSERTED.MANGAID VALUES (" +
-					"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @TOTALVOLUMES, @OWNEDVOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @SCORE" +
-					");";
+					string sql = "INSERT INTO MANGA (" +
+						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE" +
+						") output INSERTED.MANGAID VALUES (" +
+						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @TOTALVOLUMES, @OWNEDVOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @SCORE" +
+						");";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
 					sqlC.Parameters.Add(new SqlParameter("@NAME", manga.name ?? (object)DBNull.Value));
@@ -224,12 +233,13 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@SCORE", manga.score ?? (object)DBNull.Value));
 
-				SqlDataReader reader = sqlC.ExecuteReader();
+					SqlDataReader reader = sqlC.ExecuteReader();
 
-				if (reader.Read())
-					manga.mangaid = (long)reader.GetValue(0);
+					if (reader.Read())
+						manga.mangaid = (long)reader.GetValue(0);
 
-				return manga;
+					return manga;
+				}
 			}
 			catch (Exception e)
 			{
@@ -243,35 +253,37 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-				string sql = "UPDATE MANGA SET " +
-					"NAME=@NAME, AUTHOR=@AUTHOR, ARTIST=@ARTIST, PUBLISHER=@PUBLISHER, STATUS=@STATUS, " +
-					"TOTALVOLUMES=@TOTALVOLUMES, OWNEDVOLUMES=@OWNEDVOLUMES, LANGUAGE=@LANGUAGE, GENRE=@GENRE, " +
-					"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION, SCORE=@SCORE " +
-					"WHERE MANGAID=@MANGAID";
+					string sql = "UPDATE MANGA SET " +
+						"NAME=@NAME, AUTHOR=@AUTHOR, ARTIST=@ARTIST, PUBLISHER=@PUBLISHER, STATUS=@STATUS, " +
+						"TOTALVOLUMES=@TOTALVOLUMES, OWNEDVOLUMES=@OWNEDVOLUMES, LANGUAGE=@LANGUAGE, GENRE=@GENRE, " +
+						"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION, SCORE=@SCORE " +
+						"WHERE MANGAID=@MANGAID";
 
-				SqlCommand sqlC = new SqlCommand(sql, conn);
-				sqlC.Parameters.Add(new SqlParameter("@NAME", manga.name ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@AUTHOR", manga.author ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@ARTIST", manga.artist ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@PUBLISHER", manga.publisher ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@STATUS", manga.status ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@TOTALVOLUMES", manga.totalvolumes ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@OWNEDVOLUMES", manga.ownedvolumes ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@LANGUAGE", manga.language ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@SCORE", manga.score ?? (object)DBNull.Value));
-				sqlC.Parameters.Add(new SqlParameter("@MANGAID", manga.mangaid));
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@NAME", manga.name ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@AUTHOR", manga.author ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@ARTIST", manga.artist ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@PUBLISHER", manga.publisher ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@STATUS", manga.status ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@TOTALVOLUMES", manga.totalvolumes ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@OWNEDVOLUMES", manga.ownedvolumes ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@LANGUAGE", manga.language ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@SCORE", manga.score ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", manga.mangaid));
 
-				if (sqlC.ExecuteNonQuery() > 0)
-					return manga;
+					if (sqlC.ExecuteNonQuery() > 0)
+						return manga;
+				}
 			}
 			catch (Exception e)
 			{
@@ -290,28 +302,30 @@ namespace kajiride_backend
 
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
-
-				string sql = "SELECT RELEASEID, MANGAID, VOLUME, ACTIVE, RELEASEDATE FROM RELEASE";
-
-				SqlCommand sqlCommand = new SqlCommand(sql, conn);
-
-				SqlDataReader reader = sqlCommand.ExecuteReader();
-				while (reader.Read())
+				using (SqlConnection conn = new SqlConnection())
 				{
-					Release release = new Release(
-						(long)reader.GetValue(0),
-						(long)reader.GetValue(1),
-						(int)reader.GetValue(2),
-						(bool)reader.GetValue(3),
-						(DateTime)reader.GetValue(4)
-					);
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-					releaseList.Add(release);
+					string sql = "SELECT RELEASEID, MANGAID, VOLUME, ACTIVE, RELEASEDATE FROM RELEASE";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					while (reader.Read())
+					{
+						Release release = new Release(
+							(long)reader.GetValue(0),
+							(long)reader.GetValue(1),
+							(int)reader.GetValue(2),
+							(bool)reader.GetValue(3),
+							(DateTime)reader.GetValue(4)
+						);
+
+						releaseList.Add(release);
+					}
 				}
 			}
 			catch (Exception e)
@@ -326,30 +340,32 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-				string sql = "INSERT INTO RELEASE (" +
-					"MANGAID, VOLUME, ACTIVE, RELEASEDATE" +
-					") output INSERTED.RELEASEID VALUES (" +
-					"@MANGAID, @VOLUME, @ACTIVE, @RELEASEDATE" +
-					");";
+					string sql = "INSERT INTO RELEASE (" +
+						"MANGAID, VOLUME, ACTIVE, RELEASEDATE" +
+						") output INSERTED.RELEASEID VALUES (" +
+						"@MANGAID, @VOLUME, @ACTIVE, @RELEASEDATE" +
+						");";
 
-				SqlCommand sqlC = new SqlCommand(sql, conn);
-				sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaId));
-				sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
-				sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
-				sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaId));
+					sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
+					sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
 
-				SqlDataReader reader = sqlC.ExecuteReader();
+					SqlDataReader reader = sqlC.ExecuteReader();
 
-				if (reader.Read())
-					release.releaseId = (long)reader.GetValue(0);
+					if (reader.Read())
+						release.releaseId = (long)reader.GetValue(0);
 
-				return release;
+					return release;
+				}
 			}
 			catch (Exception e)
 			{
@@ -363,19 +379,21 @@ namespace kajiride_backend
 		{
 			try
 			{
-				SqlConnection conn = new SqlConnection();
-				conn.ConnectionString = "Data Source=localhost;" +
-				"Initial Catalog=mangadb;" +
-				"Integrated Security=SSPI;";
-				conn.Open();
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
 
-				string sql = "DELETE FROM RELEASE WHERE RELEASEID=@RELEASEID";
+					string sql = "DELETE FROM RELEASE WHERE RELEASEID=@RELEASEID";
 
-				SqlCommand sqlC = new SqlCommand(sql, conn);
-				sqlC.Parameters.Add(new SqlParameter("@RELEASEID", releaseId));
-				int affectedRows = sqlC.ExecuteNonQuery();
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEID", releaseId));
+					int affectedRows = sqlC.ExecuteNonQuery();
 
-				return affectedRows > 0;
+					return affectedRows > 0;
+				}
 			}
 			catch (Exception e)
 			{
