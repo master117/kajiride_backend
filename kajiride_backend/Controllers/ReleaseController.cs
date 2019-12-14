@@ -49,6 +49,35 @@ namespace kajiride_backend.Controllers
 			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 		}
 
+		// PUT: api/Release
+		[ResponseType(typeof(Release))]
+		public HttpResponseMessage Put([FromBody]JObject data)
+		{
+			try
+			{
+				Release release = data["release"].ToObject<Release>();
+				String token = data["token"].ToObject<string>();
+
+				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
+					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
+				if (release.releaseId == null)
+					return new HttpResponseMessage(HttpStatusCode.Conflict);
+
+				release = DBHandler.EditRelease(release);
+				if (release == null)
+					return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+
+				return this.Request.CreateResponse(HttpStatusCode.OK, release);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
+
+			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+		}
+
 		// DELETE: api/Release/
 		[ResponseType(typeof(bool))]
 		public HttpResponseMessage Delete([FromBody]JObject data)

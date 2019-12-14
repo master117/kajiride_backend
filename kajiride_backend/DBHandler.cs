@@ -375,6 +375,40 @@ namespace kajiride_backend
 			return null;
 		}
 
+		public static Release EditRelease(Release release)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "UPDATE RELEASE SET " +
+						"MANGAID=@MANGAID, VOLUME=@VOLUME, ACTIVE=@ACTIVE, RELEASEDATE=@RELEASEDATE " +
+						"WHERE RELEASEID=@RELEASEID";
+
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaId));
+					sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
+					sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEID", release.releaseId));
+
+					if (sqlC.ExecuteNonQuery() > 0)
+						return release;
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return null;
+		}
+
 		public static bool DeleteRelease(long releaseId)
 		{
 			try
