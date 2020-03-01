@@ -118,29 +118,26 @@ namespace kajiride_backend
 						"Integrated Security=SSPI;";
 					conn.Open();
 
-					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
-						"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA";
+					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, VOLUMES, " +
+						"LANGUAGE, GENRE, IMAGE, DESCRIPTION FROM MANGA";
 
 					SqlCommand sqlCommand = new SqlCommand(sql, conn);
 
 					SqlDataReader reader = sqlCommand.ExecuteReader();
 					while (reader.Read())
 					{
-						Manga manga = new Manga(
-							(long)reader.GetValue(0),
-							reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
-							reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
-							reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
-							reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
-							reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
-							reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
-							reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
-							reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
-							reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
-							reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
-							reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
-							reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
-						);
+						Manga manga = new Manga();
+						manga.mangaid = (long)reader.GetValue(0);
+						manga.name = reader.IsDBNull(1) ? null : (string)reader.GetValue(1);
+						manga.author = reader.IsDBNull(2) ? null : (string)reader.GetValue(2);
+						manga.artist = reader.IsDBNull(3) ? null : (string)reader.GetValue(3);
+						manga.publisher = reader.IsDBNull(4) ? null : (string)reader.GetValue(4);
+						manga.status = reader.IsDBNull(5) ? null : (string)reader.GetValue(5);
+						manga.volumes = reader.IsDBNull(6) ? null : (int?)reader.GetValue(6);
+						manga.language = reader.IsDBNull(7) ? null : (string)reader.GetValue(7);
+						manga.genre = reader.IsDBNull(8) ? null : (string)reader.GetValue(8);
+						manga.image = reader.IsDBNull(9) ? null : (string)reader.GetValue(9);
+						manga.description = reader.IsDBNull(10) ? null : (string)reader.GetValue(10);
 
 						mangaList.Add(manga);
 					}
@@ -154,7 +151,7 @@ namespace kajiride_backend
 			return mangaList;
 		}
 
-		internal static Manga GetManga(long id)
+		internal static Manga GetManga(long mangaId)
 		{
 			try
 			{
@@ -165,30 +162,39 @@ namespace kajiride_backend
 						"Integrated Security=SSPI;";
 					conn.Open();
 
-					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, " +
-						"LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE FROM MANGA WHERE MANGAID=@MANGAID";
+					string sql = "SELECT " +
+						"MANGAID, " +
+						"NAME, " +
+						"AUTHOR, " +
+						"ARTIST, " +
+						"PUBLISHER, " +
+						"STATUS, " +
+						"VOLUMES, " +
+						"LANGUAGE, " +
+						"GENRE, " +
+						"IMAGE, " +
+						"DESCRIPTION " +
+						"FROM MANGA " +
+						"WHERE Manga.MANGAID=@MANGAID";
 
 					SqlCommand sqlCommand = new SqlCommand(sql, conn);
-					sqlCommand.Parameters.Add(new SqlParameter("@MANGAID", id));
+					sqlCommand.Parameters.Add(new SqlParameter("@MANGAID", mangaId));
 
 					SqlDataReader reader = sqlCommand.ExecuteReader();
 					if (reader.Read())
 					{
-						Manga manga = new Manga(
-							(long)reader.GetValue(0),
-							reader.IsDBNull(1) ? null : (string)reader.GetValue(1),
-							reader.IsDBNull(2) ? null : (string)reader.GetValue(2),
-							reader.IsDBNull(3) ? null : (string)reader.GetValue(3),
-							reader.IsDBNull(4) ? null : (string)reader.GetValue(4),
-							reader.IsDBNull(5) ? null : (string)reader.GetValue(5),
-							reader.IsDBNull(6) ? null : (int?)reader.GetValue(6),
-							reader.IsDBNull(7) ? null : (int?)reader.GetValue(7),
-							reader.IsDBNull(8) ? null : (string)reader.GetValue(8),
-							reader.IsDBNull(9) ? null : (string)reader.GetValue(9),
-							reader.IsDBNull(10) ? null : (string)reader.GetValue(10),
-							reader.IsDBNull(11) ? null : (string)reader.GetValue(11),
-							reader.IsDBNull(12) ? null : (int?)reader.GetValue(12)
-						);
+						Manga manga = new Manga();
+						manga.mangaid = (long)reader.GetValue(0);
+						manga.name = reader.IsDBNull(1) ? null : (string)reader.GetValue(1);
+						manga.author = reader.IsDBNull(2) ? null : (string)reader.GetValue(2);
+						manga.artist = reader.IsDBNull(3) ? null : (string)reader.GetValue(3);
+						manga.publisher = reader.IsDBNull(4) ? null : (string)reader.GetValue(4);
+						manga.status = reader.IsDBNull(5) ? null : (string)reader.GetValue(5);
+						manga.volumes = reader.IsDBNull(6) ? null : (int?)reader.GetValue(6);
+						manga.language = reader.IsDBNull(7) ? null : (string)reader.GetValue(7);
+						manga.genre = reader.IsDBNull(8) ? null : (string)reader.GetValue(8);
+						manga.image = reader.IsDBNull(9) ? null : (string)reader.GetValue(9);
+						manga.description = reader.IsDBNull(10) ? null : (string)reader.GetValue(10);
 
 						return manga;
 					}
@@ -214,9 +220,9 @@ namespace kajiride_backend
 					conn.Open();
 
 					string sql = "INSERT INTO MANGA (" +
-						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, TOTALVOLUMES, OWNEDVOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, SCORE" +
+						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, VOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION" +
 						") output INSERTED.MANGAID VALUES (" +
-						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @TOTALVOLUMES, @OWNEDVOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @SCORE" +
+						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @VOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION" +
 						");";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
@@ -225,13 +231,11 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@ARTIST", manga.artist ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@PUBLISHER", manga.publisher ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@STATUS", manga.status ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@TOTALVOLUMES", manga.totalvolumes ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@OWNEDVOLUMES", manga.ownedvolumes ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@VOLUMES", manga.volumes ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@LANGUAGE", manga.language ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@SCORE", manga.score ?? (object)DBNull.Value));
 
 					SqlDataReader reader = sqlC.ExecuteReader();
 
@@ -262,8 +266,8 @@ namespace kajiride_backend
 
 					string sql = "UPDATE MANGA SET " +
 						"NAME=@NAME, AUTHOR=@AUTHOR, ARTIST=@ARTIST, PUBLISHER=@PUBLISHER, STATUS=@STATUS, " +
-						"TOTALVOLUMES=@TOTALVOLUMES, OWNEDVOLUMES=@OWNEDVOLUMES, LANGUAGE=@LANGUAGE, GENRE=@GENRE, " +
-						"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION, SCORE=@SCORE " +
+						"VOLUMES=@VOLUMES, LANGUAGE=@LANGUAGE, GENRE=@GENRE, " +
+						"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION " +
 						"WHERE MANGAID=@MANGAID";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
@@ -272,17 +276,132 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@ARTIST", manga.artist ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@PUBLISHER", manga.publisher ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@STATUS", manga.status ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@TOTALVOLUMES", manga.totalvolumes ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@OWNEDVOLUMES", manga.ownedvolumes ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@VOLUMES", manga.volumes ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@LANGUAGE", manga.language ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
-					sqlC.Parameters.Add(new SqlParameter("@SCORE", manga.score ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@MANGAID", manga.mangaid));
 
 					if (sqlC.ExecuteNonQuery() > 0)
 						return manga;
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return null;
+		}
+
+		internal static UserManga GetUserManga(long mangaId, long userId)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "SELECT " +
+						"MANGAID, " +
+						"USERID, " +
+						"OWNED, " +
+						"COMMENT, " +
+						"SCORE " +
+						"FROM USERMANGA " +
+						"WHERE MANGAID=@MANGAID AND UserID=@USERID";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+					sqlCommand.Parameters.Add(new SqlParameter("@MANGAID", mangaId));
+					sqlCommand.Parameters.Add(new SqlParameter("@USERID", userId));
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					if (reader.Read())
+					{
+						UserManga userManga = new UserManga();
+						userManga.mangaid = (long)reader.GetValue(0);
+						userManga.userid = (long)reader.GetValue(1);
+						userManga.owned = reader.IsDBNull(2) ? null : (int?)reader.GetValue(2);
+						userManga.comment = reader.IsDBNull(3) ? null : (string)reader.GetValue(3);
+						userManga.score = reader.IsDBNull(4) ? null : (int?)reader.GetValue(4);
+
+						return userManga;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return null;
+		}
+
+		public static UserManga InsertUserManga(UserManga userManga, long mangaId, long userId)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "INSERT INTO USERMANGA (" +
+						"MANGAID, USERID, OWNED, COMMENT, SCORE" +
+						") output INSERTED.MANGAID VALUES (" +
+						"@MANGAID, @USERID, @OWNED, @COMMENT, @SCORE" +
+						");";
+
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", mangaId));
+					sqlC.Parameters.Add(new SqlParameter("@USERID", userId));
+					sqlC.Parameters.Add(new SqlParameter("@OWNED", userManga.owned ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@COMMENT", userManga.comment ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@SCORE", userManga.score ?? (object)DBNull.Value));
+
+					SqlDataReader reader = sqlC.ExecuteReader();
+
+					return GetUserManga(mangaId, userId);
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return null;
+		}
+
+		public static UserManga EditUserManga(UserManga userManga)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "UPDATE USERMANGA SET " +
+						"OWNED=@OWNED, COMMENT=@COMMENT, SCORE=@SCORE " +
+						"WHERE MANGAID=@MANGAID AND USERID=@USERID";
+
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@OWNED", userManga.owned ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@COMMENT", userManga.comment ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", userManga.mangaid));
+					sqlC.Parameters.Add(new SqlParameter("@USERID", userManga.userid));
+					sqlC.Parameters.Add(new SqlParameter("@SCORE", userManga.score));
+
+					if (sqlC.ExecuteNonQuery() > 0)
+						return userManga;
 				}
 			}
 			catch (Exception e)

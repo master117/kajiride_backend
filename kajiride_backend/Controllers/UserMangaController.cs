@@ -12,40 +12,41 @@ using System.Web.Http.Description;
 namespace kajiride_backend.Controllers
 {
 	[EnableCors(origins: "*", headers: "*", methods: "*")]
-	public class MangaController : ApiController
+	public class UserMangaController : ApiController
     {
-        // GET: api/Manga
-        public IEnumerable<Manga> Get()
-        {
-            return DBHandler.GetAllManga();
-        }
-
-		// GET: api/Manga/id
-		public Manga Get(long id)
+		// GET: api/usermanga
+		public HttpResponseMessage Get(long mangaId, long userId, string token)
 		{
-			return DBHandler.GetManga(id);
+			if(!SessionHandler.isUser(token, userId))
+				return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
+			UserManga userManga = DBHandler.GetUserManga(mangaId, userId);
+
+			return this.Request.CreateResponse(HttpStatusCode.OK, userManga);
 		}
 
-		// POST: api/Manga
+		// POST: api/usermanga
 		[ResponseType(typeof(Manga))]
 		public HttpResponseMessage Post([FromBody]JObject data)
-        {
+		{
 			try
 			{
-				Manga manga = data["manga"].ToObject<Manga>();
+				UserManga userManga = data["usermanga"].ToObject<UserManga>();
 				String token = data["token"].ToObject<string>();
+				long mangaId = data["mangaid"].ToObject<long>();
+				long userId = data["userid"].ToObject<long>();
 
-				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
+				if (!SessionHandler.isUser(token, userId))
 					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
 
-				if (manga.mangaid != null)
+				if (DBHandler.GetUserManga(userManga.mangaid, mangaId) != null)
 					return new HttpResponseMessage(HttpStatusCode.Conflict);
 
-				manga = DBHandler.InsertManga(manga);
-				if(manga == null)
+				userManga = DBHandler.InsertUserManga(userManga, mangaId, userId);
+				if (userManga == null)
 					return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 
-				return this.Request.CreateResponse(HttpStatusCode.OK, manga);
+				return this.Request.CreateResponse(HttpStatusCode.OK, userManga);
 			}
 			catch (Exception e)
 			{
@@ -55,23 +56,26 @@ namespace kajiride_backend.Controllers
 			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 		}
 
-		// PUT: api/Manga
+		// PUT: api/usermanga
 		[ResponseType(typeof(Manga))]
 		public HttpResponseMessage Put([FromBody]JObject data)
 		{
 			try
 			{
-				Manga manga = data["manga"].ToObject<Manga>();
+				UserManga userManga = data["usermanga"].ToObject<UserManga>();
 				String token = data["token"].ToObject<string>();
 
-				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
+				if (!SessionHandler.isUser(token, userManga.userid))
 					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
 
-				manga = DBHandler.EditManga(manga);
-				if (manga == null)
+				if (DBHandler.GetUserManga(userManga.mangaid, userManga.userid) == null)
+					return new HttpResponseMessage(HttpStatusCode.Conflict);
+
+				userManga = DBHandler.EditUserManga(userManga);
+				if (userManga == null)
 					return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 
-				return this.Request.CreateResponse(HttpStatusCode.OK, manga);
+				return this.Request.CreateResponse(HttpStatusCode.OK, userManga);
 			}
 			catch (Exception e)
 			{
@@ -81,7 +85,7 @@ namespace kajiride_backend.Controllers
 			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 		}
 
-		// DELETE: api/Manga/5
+		// DELETE: api/usermanga/
 		public void Delete(int id)
         {
         }

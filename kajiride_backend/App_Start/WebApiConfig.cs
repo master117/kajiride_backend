@@ -20,9 +20,6 @@ namespace kajiride_backend
 				routeTemplate: "api/{controller}/{id}",
 				defaults: new { id = RouteParameter.Optional }
 			);
-
-			DBHandler.TryRegisterUser("admin", "abcd1234");
-			DBHandler.TryRegisterUser("user", "abcd1234");
 		}
 	}
 }

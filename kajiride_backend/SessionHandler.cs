@@ -17,12 +17,12 @@ namespace kajiride_backend
 		private struct TokenConfig
 		{
 			public string Token;
-			public int Role;
+			public User User;
 
-			public TokenConfig(string tempToken, int tempRole)
+			public TokenConfig(string tempToken, User tempUser)
 			{
 				Token = tempToken;
-				Role = tempRole;
+				User = tempUser;
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace kajiride_backend
 			// Generate Session Token
 			string token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 			user.token = token;
-			AddToken(token, user.role);
+			AddToken(token, user);
 
 			return user;
 		}
@@ -55,11 +55,11 @@ namespace kajiride_backend
 			return false;
 		}
 
-		private static void AddToken(string token, int role)
+		private static void AddToken(string token, User user)
 		{
 			tokens.RemoveAll(x => x.Token == token);
 
-			tokens.Add(new TokenConfig(token, role));
+			tokens.Add(new TokenConfig(token, user));
 		}
 
 		public static bool isAllowed(string token, Roles reqRole)
@@ -67,7 +67,15 @@ namespace kajiride_backend
 			if (!tokens.Any(x => x.Token == token))
 				return false;
 
-			return (int)reqRole <= tokens.First(x => x.Token == token).Role;
+			return (int)reqRole <= tokens.First(x => x.Token == token).User.role;
+		}
+
+		public static bool isUser(string token, long id)
+		{
+			if (!tokens.Any(x => x.Token == token))
+				return false;
+
+			return tokens.First(x => x.Token == token).User.id == id;
 		}
 	}
 }

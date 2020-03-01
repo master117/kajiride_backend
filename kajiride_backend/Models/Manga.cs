@@ -13,35 +13,25 @@ namespace kajiride_backend.Models
 		public string artist;
 		public string publisher;
 		public string status;
-		public int? totalvolumes;
-		public int? ownedvolumes;
+		public int? volumes;
 		public string language;
 		public string genre;
 		public string image;
 		public string description;
-		public int? score;
 
-		public Manga()
+		public static int[] VolumesStringToArray(string volumes)
 		{
+			int[] result = volumes.Split(',').SelectMany(x =>
+			{
+				if (x.Contains("-"))
+				{
+					int[] numbers = x.Split('-').Select(y => int.Parse(y)).ToArray();
+					return Enumerable.Range(numbers[0], (numbers[1] - numbers[0]) + 1);
+				}
+				return new int[] { int.Parse(x) };
+			}).ToArray();
 
-		}
-
-		public Manga(long? mangaid, string name, string author, string artist, string publisher, string status, 
-			int? totalvolumes, int? ownedvolumes, string language, string genre, string image, string description, int? score)
-		{
-			this.mangaid = mangaid;
-			this.name = name;
-			this.author = author;
-			this.artist = artist;
-			this.publisher = publisher;
-			this.status = status;
-			this.totalvolumes = totalvolumes;
-			this.ownedvolumes = ownedvolumes;
-			this.language = language;
-			this.genre = genre;
-			this.image = image;
-			this.description = description;
-			this.score = score;
+			return result;
 		}
 	}
 }
