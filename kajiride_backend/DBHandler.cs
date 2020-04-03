@@ -119,7 +119,7 @@ namespace kajiride_backend
 					conn.Open();
 
 					string sql = "SELECT MANGAID, NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, VOLUMES, " +
-						"LANGUAGE, GENRE, IMAGE, DESCRIPTION FROM MANGA";
+						"LANGUAGE, GENRE, IMAGE, DESCRIPTION, ORIGINALNAME FROM MANGA";
 
 					SqlCommand sqlCommand = new SqlCommand(sql, conn);
 
@@ -138,6 +138,7 @@ namespace kajiride_backend
 						manga.genre = reader.IsDBNull(8) ? null : (string)reader.GetValue(8);
 						manga.image = reader.IsDBNull(9) ? null : (string)reader.GetValue(9);
 						manga.description = reader.IsDBNull(10) ? null : (string)reader.GetValue(10);
+						manga.originalname = reader.IsDBNull(11) ? null : (string)reader.GetValue(11);
 
 						mangaList.Add(manga);
 					}
@@ -173,7 +174,8 @@ namespace kajiride_backend
 						"LANGUAGE, " +
 						"GENRE, " +
 						"IMAGE, " +
-						"DESCRIPTION " +
+						"DESCRIPTION, " +
+						"ORIGINALNAME " +
 						"FROM MANGA " +
 						"WHERE Manga.MANGAID=@MANGAID";
 
@@ -195,6 +197,7 @@ namespace kajiride_backend
 						manga.genre = reader.IsDBNull(8) ? null : (string)reader.GetValue(8);
 						manga.image = reader.IsDBNull(9) ? null : (string)reader.GetValue(9);
 						manga.description = reader.IsDBNull(10) ? null : (string)reader.GetValue(10);
+						manga.originalname = reader.IsDBNull(11) ? null : (string)reader.GetValue(11);
 
 						return manga;
 					}
@@ -220,9 +223,9 @@ namespace kajiride_backend
 					conn.Open();
 
 					string sql = "INSERT INTO MANGA (" +
-						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, VOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION" +
+						"NAME, AUTHOR, ARTIST, PUBLISHER, STATUS, VOLUMES, LANGUAGE, GENRE, IMAGE, DESCRIPTION, ORIGINALNAME" +
 						") output INSERTED.MANGAID VALUES (" +
-						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @VOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION" +
+						"@NAME, @AUTHOR, @ARTIST, @PUBLISHER, @STATUS, @VOLUMES, @LANGUAGE, @GENRE, @IMAGE, @DESCRIPTION, @ORIGINALNAME" +
 						");";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
@@ -236,6 +239,7 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@ORIGINALNAME", manga.originalname ?? (object)DBNull.Value));
 
 					SqlDataReader reader = sqlC.ExecuteReader();
 
@@ -267,7 +271,7 @@ namespace kajiride_backend
 					string sql = "UPDATE MANGA SET " +
 						"NAME=@NAME, AUTHOR=@AUTHOR, ARTIST=@ARTIST, PUBLISHER=@PUBLISHER, STATUS=@STATUS, " +
 						"VOLUMES=@VOLUMES, LANGUAGE=@LANGUAGE, GENRE=@GENRE, " +
-						"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION " +
+						"IMAGE=@IMAGE, DESCRIPTION=@DESCRIPTION, ORIGINALNAME=@ORIGINALNAME " +
 						"WHERE MANGAID=@MANGAID";
 
 					SqlCommand sqlC = new SqlCommand(sql, conn);
@@ -281,6 +285,7 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@GENRE", manga.genre ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@IMAGE", manga.image ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@DESCRIPTION", manga.description ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@ORIGINALNAME", manga.originalname ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@MANGAID", manga.mangaid));
 
 					if (sqlC.ExecuteNonQuery() > 0)
