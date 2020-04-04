@@ -7,19 +7,19 @@ namespace kajiride_backend.Models
 {
 	public class Release
 	{
-		public long? releaseId;
-		public long mangaId;
+		public long? releaseid;
+		public long mangaid;
 		public int volume;
 		public bool active;
 		public DateTime releaseDate;
 
-		public Release(long? releaseId, long mangaId, int volume, bool active, DateTime releaseDate)
+		public Release(long? releaseid, long mangaid, int volume, bool active, DateTime releasedate)
 		{
-			this.releaseId = releaseId;
-			this.mangaId = mangaId;
+			this.releaseid = releaseid;
+			this.mangaid = mangaid;
 			this.volume = volume;
 			this.active = active;
-			this.releaseDate = releaseDate;
+			this.releaseDate = releasedate;
 		}
 	}
 }

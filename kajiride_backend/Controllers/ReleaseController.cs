@@ -32,7 +32,7 @@ namespace kajiride_backend.Controllers
 			if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
 				return new HttpResponseMessage(HttpStatusCode.Unauthorized);
 
-			if (release.releaseId != null)
+			if (release.releaseid != null)
 				return new HttpResponseMessage(HttpStatusCode.Conflict);
 
 				release = DBHandler.InsertRelease(release);
@@ -61,7 +61,7 @@ namespace kajiride_backend.Controllers
 				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
 					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
 
-				if (release.releaseId == null)
+				if (release.releaseid == null)
 					return new HttpResponseMessage(HttpStatusCode.Conflict);
 
 				release = DBHandler.EditRelease(release);
