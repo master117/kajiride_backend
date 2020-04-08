@@ -401,10 +401,10 @@ namespace kajiride_backend
 					SqlCommand sqlC = new SqlCommand(sql, conn);
 					sqlC.Parameters.Add(new SqlParameter("@OWNED", userManga.owned ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@COMMENT", userManga.comment ?? (object)DBNull.Value));
+					sqlC.Parameters.Add(new SqlParameter("@SCORE", userManga.score ?? (object)DBNull.Value));
 					sqlC.Parameters.Add(new SqlParameter("@MANGAID", userManga.mangaid));
 					sqlC.Parameters.Add(new SqlParameter("@USERID", userManga.userid));
-					sqlC.Parameters.Add(new SqlParameter("@SCORE", userManga.score));
-
+					
 					if (sqlC.ExecuteNonQuery() > 0)
 						return userManga;
 				}
@@ -481,7 +481,7 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaid));
 					sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
 					sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
-					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releasedate));
 
 					SqlDataReader reader = sqlC.ExecuteReader();
 
@@ -518,7 +518,7 @@ namespace kajiride_backend
 					sqlC.Parameters.Add(new SqlParameter("@MANGAID", release.mangaid));
 					sqlC.Parameters.Add(new SqlParameter("@VOLUME", release.volume));
 					sqlC.Parameters.Add(new SqlParameter("@ACTIVE", release.active));
-					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releaseDate));
+					sqlC.Parameters.Add(new SqlParameter("@RELEASEDATE", release.releasedate));
 					sqlC.Parameters.Add(new SqlParameter("@RELEASEID", release.releaseid));
 
 					if (sqlC.ExecuteNonQuery() > 0)

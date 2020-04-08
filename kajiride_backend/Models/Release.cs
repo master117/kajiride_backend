@@ -11,7 +11,7 @@ namespace kajiride_backend.Models
 		public long mangaid;
 		public int volume;
 		public bool active;
-		public DateTime releaseDate;
+		public DateTime releasedate;
 
 		public Release(long? releaseid, long mangaid, int volume, bool active, DateTime releasedate)
 		{
@@ -19,7 +19,7 @@ namespace kajiride_backend.Models
 			this.mangaid = mangaid;
 			this.volume = volume;
 			this.active = active;
-			this.releaseDate = releasedate;
+			this.releasedate = releasedate;
 		}
 	}
 }
