@@ -2,5 +2,6 @@
 
 /kajiride_backend/bin
 /kajiride_backend/obj
+/kajiride_backend/Properties/PublishProfiles
 /mangadbDataEntry/bin
 /mangadbDataEntry/obj
