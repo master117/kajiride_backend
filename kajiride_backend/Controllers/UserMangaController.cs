@@ -15,6 +15,17 @@ namespace kajiride_backend.Controllers
 	public class UserMangaController : ApiController
     {
 		// GET: api/usermanga
+		public HttpResponseMessage Get(long userId, string token)
+		{
+			if (!SessionHandler.isUser(token, userId))
+				return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
+			List<UserManga> userManga = DBHandler.GetAllUserManga(userId);
+
+			return this.Request.CreateResponse(HttpStatusCode.OK, userManga);
+		}
+
+		// GET: api/usermanga
 		public HttpResponseMessage Get(long mangaId, long userId, string token)
 		{
 			if(!SessionHandler.isUser(token, userId))

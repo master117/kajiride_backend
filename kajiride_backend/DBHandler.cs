@@ -300,6 +300,54 @@ namespace kajiride_backend
 			return null;
 		}
 
+		internal static List<UserManga> GetAllUserManga(long userId)
+		{
+			List<UserManga> userMangaList = new List<UserManga>();
+
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "SELECT " +
+						"MANGAID, " +
+						"USERID, " +
+						"OWNED, " +
+						"COMMENT, " +
+						"SCORE " +
+						"FROM USERMANGA " +
+						"WHERE UserID=@USERID";
+
+					SqlCommand sqlCommand = new SqlCommand(sql, conn);
+					sqlCommand.Parameters.Add(new SqlParameter("@USERID", userId));
+
+					SqlDataReader reader = sqlCommand.ExecuteReader();
+					while (reader.Read())
+					{
+						UserManga userManga = new UserManga();
+						userManga.mangaid = (long)reader.GetValue(0);
+						userManga.userid = (long)reader.GetValue(1);
+						userManga.owned = reader.IsDBNull(2) ? null : (int?)reader.GetValue(2);
+						userManga.comment = reader.IsDBNull(3) ? null : (string)reader.GetValue(3);
+						userManga.score = reader.IsDBNull(4) ? null : (int?)reader.GetValue(4);
+
+						userMangaList.Add(userManga);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return userMangaList;
+		}
+
+
 		internal static UserManga GetUserManga(long mangaId, long userId)
 		{
 			try
