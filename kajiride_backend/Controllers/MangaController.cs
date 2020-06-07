@@ -33,7 +33,7 @@ namespace kajiride_backend.Controllers
 			try
 			{
 				Manga manga = data["manga"].ToObject<Manga>();
-				String token = data["token"].ToObject<string>();
+				string token = data["token"].ToObject<string>();
 
 				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
 					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
@@ -62,7 +62,7 @@ namespace kajiride_backend.Controllers
 			try
 			{
 				Manga manga = data["manga"].ToObject<Manga>();
-				String token = data["token"].ToObject<string>();
+				string token = data["token"].ToObject<string>();
 
 				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
 					return new HttpResponseMessage(HttpStatusCode.Unauthorized);

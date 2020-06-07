@@ -6,7 +6,7 @@ using System.Web;
 
 namespace kajiride_backend
 {
-	public class SessionHandler
+	public static class SessionHandler
 	{
 		public enum Roles
 		{
