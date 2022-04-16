@@ -300,6 +300,34 @@ namespace kajiride_backend
 			return null;
 		}
 
+		public static bool DeleteManga(long mangaId)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "DELETE FROM MANGA WHERE MANGAID=@MANGAID";
+
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", mangaId));
+					int affectedRows = sqlC.ExecuteNonQuery();
+
+					return affectedRows > 0;
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return false;
+		}
+
 		internal static List<UserManga> GetAllUserManga(long userId)
 		{
 			List<UserManga> userMangaList = new List<UserManga>();
@@ -463,6 +491,34 @@ namespace kajiride_backend
 			}
 
 			return null;
+		}
+
+		public static bool DeleteUserManga(long mangaId)
+		{
+			try
+			{
+				using (SqlConnection conn = new SqlConnection())
+				{
+					conn.ConnectionString = "Data Source=localhost;" +
+						"Initial Catalog=mangadb;" +
+						"Integrated Security=SSPI;";
+					conn.Open();
+
+					string sql = "DELETE FROM USERMANGA WHERE MANGAID=@MANGAID";
+
+					SqlCommand sqlC = new SqlCommand(sql, conn);
+					sqlC.Parameters.Add(new SqlParameter("@MANGAID", mangaId));
+					int affectedRows = sqlC.ExecuteNonQuery();
+
+					return affectedRows > 0;
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+
+			return false;
 		}
 
 		#endregion

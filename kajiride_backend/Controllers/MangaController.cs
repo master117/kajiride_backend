@@ -81,9 +81,30 @@ namespace kajiride_backend.Controllers
 			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
 		}
 
-		// DELETE: api/Manga/5
-		public void Delete(int id)
+		// DELETE: api/Manga
+		public HttpResponseMessage Delete([FromBody] JObject data)
         {
-        }
+			try
+			{
+				long mangaId = data["mangaId"].ToObject<long>();
+				string token = data["token"].ToObject<string>();
+
+				if (!SessionHandler.isAllowed(token, SessionHandler.Roles.admin))
+					return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
+				bool success = DBHandler.DeleteUserManga(mangaId);
+				success = success && DBHandler.DeleteManga(mangaId);
+				if (!success)
+					return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+
+				return this.Request.CreateResponse(HttpStatusCode.OK);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
+
+			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+		}
     }
 }
