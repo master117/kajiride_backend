@@ -516,9 +516,8 @@ namespace kajiride_backend
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
+				return false;
 			}
-
-			return false;
 		}
 
 		#endregion
